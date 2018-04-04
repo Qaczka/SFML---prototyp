@@ -50,8 +50,30 @@ int main()
 	sf::Texture tekstura;//sluzy do wczytywania tekstury bo jest texture i image
 	tekstura.loadFromFile("C:/Users/Qaczka/Desktop/Moje/Grunt.png");//zwraca true lub false
 
-	sf::Sprite obrazek;
-	obrazek.setTexture(tekstura);
+	sf::Sprite obrazek[4];
+	obrazek[0].setTexture(tekstura);
+	obrazek[1].setTexture(tekstura);
+	obrazek[2].setTexture(tekstura);
+	obrazek[3].setTexture(tekstura);
+	sf::FloatRect chunk_size = obrazek[1].getGlobalBounds();
+
+	obrazek[1].setRotation(45.f);//obrot o 45 stopni
+	obrazek[2].setRotation(45.f);
+
+	//obrazek[1].setPosition(obrazek[1].getPosition().x, obrazek[1].getPosition().y * 2);
+	obrazek[1].setPosition(oknoAplikacji.getSize().x * .5, oknoAplikacji.getSize().y);
+	obrazek[2].setPosition((oknoAplikacji.getSize().x * .5)+chunk_size.width, (oknoAplikacji.getSize().y)+chunk_size.height);
+	/*
+	void setPosition( float x, float y );
+	void setPosition( const sf::Vector2f & position );
+
+	void move( float offsetX, float offsetY );
+	void move( const sf::Vector2f & offset );
+	*/
+
+	sf::View v = oknoAplikacji.getDefaultView();//widok ma byc taki jak okno tak jakby ciagnie z niego dane
+	v.setSize(v.getSize().x, v.getSize().y * 2);//tak jak przy teksturze
+	v.setCenter(v.getSize() *.5f);//center bo bierzesz rozmiar i na pol .5 - 0.5
 
 	while (oknoAplikacji.isOpen())
 	{
@@ -73,13 +95,16 @@ int main()
 				oknoAplikacji.close();
 		}
 		oknoAplikacji.clear(sf::Color(0, 0, 0));
-		oknoAplikacji.draw(obrazek);//wyswietla obrazek
+		oknoAplikacji.setView(v);//ustawia widok
+		oknoAplikacji.draw(obrazek[1]);//wyswietla obrazek
+		oknoAplikacji.draw(obrazek[2]);
+		//oknoAplikacji.setView(oknoAplikacji.getDefaultView());//nie wiem czemu
 		oknoAplikacji.display();
 
 
 	}
 
 
-	//system("PAUSE");
+	system("PAUSE");
 	return 0;
 }
