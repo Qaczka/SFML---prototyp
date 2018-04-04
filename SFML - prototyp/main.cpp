@@ -49,20 +49,27 @@ int main()
 
 	sf::Texture tekstura;//sluzy do wczytywania tekstury bo jest texture i image
 	tekstura.loadFromFile("C:/Users/Qaczka/Desktop/Moje/Grunt.png");//zwraca true lub false
+	sf::Texture tekstura2;
+	tekstura2.loadFromFile("C:/Users/Qaczka/Desktop/Moje/Grunt2.png");
 
 	sf::Sprite obrazek[4];
-	obrazek[0].setTexture(tekstura);
+	obrazek[0].setTexture(tekstura2);
 	obrazek[1].setTexture(tekstura);
-	obrazek[2].setTexture(tekstura);
+	obrazek[2].setTexture(tekstura2);
 	obrazek[3].setTexture(tekstura);
 	sf::FloatRect chunk_size = obrazek[1].getGlobalBounds();
 
-	obrazek[1].setRotation(45.f);//obrot o 45 stopni
-	obrazek[2].setRotation(45.f);
+
+	//obrazek[1].setRotation(45.f);//obrot o 45 stopni
+	//obrazek[2].setRotation(45.f);
+
 
 	//obrazek[1].setPosition(obrazek[1].getPosition().x, obrazek[1].getPosition().y * 2);
-	obrazek[1].setPosition(oknoAplikacji.getSize().x * .5, oknoAplikacji.getSize().y);
-	obrazek[2].setPosition((oknoAplikacji.getSize().x * .5)+chunk_size.width, (oknoAplikacji.getSize().y)+chunk_size.height);
+	obrazek[1].setPosition(oknoAplikacji.getSize().x * 0.5, oknoAplikacji.getSize().y * 0.5);
+	obrazek[2].setPosition((oknoAplikacji.getSize().x * 0.5)+chunk_size.width, (oknoAplikacji.getSize().y*0.5)+chunk_size.height);
+	obrazek[0].setPosition((oknoAplikacji.getSize().x * 0.5), (oknoAplikacji.getSize().y*0.5) + chunk_size.height);
+	obrazek[3].setPosition((oknoAplikacji.getSize().x * 0.5) + chunk_size.width, (oknoAplikacji.getSize().y*0.5));
+
 	/*
 	void setPosition( float x, float y );
 	void setPosition( const sf::Vector2f & position );
@@ -72,8 +79,10 @@ int main()
 	*/
 
 	sf::View v = oknoAplikacji.getDefaultView();//widok ma byc taki jak okno tak jakby ciagnie z niego dane
-	v.setSize(v.getSize().x, v.getSize().y * 2);//tak jak przy teksturze
-	v.setCenter(v.getSize() *.5f);//center bo bierzesz rozmiar i na pol .5 - 0.5
+	//v.setSize(v.getSize().x, v.getSize().y * 2);//tak jak przy teksturze
+	//v.setCenter(v.getSize() *.5f);//center bo bierzesz rozmiar i na pol .5 - 0.5
+	v.setRotation(45);
+	v.setViewport(sf::FloatRect(0.f, 0.25f, 1.f, 0.5f));//kamera o polowe 90 stopni czyli 0.5f w dol plus przesuniecie o cwierc w dol
 
 	while (oknoAplikacji.isOpen())
 	{
@@ -98,13 +107,12 @@ int main()
 		oknoAplikacji.setView(v);//ustawia widok
 		oknoAplikacji.draw(obrazek[1]);//wyswietla obrazek
 		oknoAplikacji.draw(obrazek[2]);
+		oknoAplikacji.draw(obrazek[3]);
+		oknoAplikacji.draw(obrazek[0]);
 		//oknoAplikacji.setView(oknoAplikacji.getDefaultView());//nie wiem czemu
 		oknoAplikacji.display();
 
 
 	}
-
-
-	system("PAUSE");
 	return 0;
 }
