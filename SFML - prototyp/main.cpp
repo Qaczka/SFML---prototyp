@@ -75,36 +75,36 @@ int main(int argc, char** argv)
 
 	sf::RenderWindow oknoAplikacji(sf::VideoMode(1920, 1080), "Kelajno", sf::Style::Fullscreen);//to opcja fullscreen
 
-	sf::Texture tekstura1;//sluzy do wczytywania tekstury bo jest texture i image
-	tekstura1.loadFromFile("Textures/Grunt.png");//zwraca true lub false
-	sf::Texture tekstura2;
-	tekstura2.loadFromFile("Textures/Grunt2.png");
-	sf::Texture tekstura3;
-	tekstura3.loadFromFile("Textures/Drzewko.png");
+	sf::Texture texture1;//sluzy do wczytywania tekstury bo jest texture i image
+	texture1.loadFromFile("Textures/Grunt.png");//zwraca true lub false
+	sf::Texture texture2;
+	texture2.loadFromFile("Textures/Grunt2.png");
+	sf::Texture texture3;
+	texture3.loadFromFile("Textures/Drzewko.png");
 
 
-	sf::Sprite *obrazek = new sf::Sprite[number_of_chunks];
+	sf::Sprite *image = new sf::Sprite[number_of_chunks];
 	for (int i = 0; i < number_of_chunks; i++)
 	{
 		if (i % 2 == 0)
 		{
-			obrazek[i].setTexture(tekstura1);
+			image[i].setTexture(texture1);
 		}
 		else
 		{
-			obrazek[i].setTexture(tekstura2);
+			image[i].setTexture(texture2);
 		}
 	}
 	sf::Sprite drzewo;
-	drzewo.setTexture(tekstura3);
+	drzewo.setTexture(texture3);
 
 
-	sf::FloatRect chunk_size = obrazek[0].getGlobalBounds();//biore info wymiarow chunka na przykladzie pierwszego
+	sf::FloatRect chunk_size = image[0].getGlobalBounds();//biore info wymiarow chunka na przykladzie pierwszego
 	for (int i = 0; i < map_height; i++)
 	{
 		for (int g = 0; g < map_width; g++)
 		{
-			obrazek[g + (i*map_width)].setPosition((oknoAplikacji.getSize().x*0.5 + 250) - (g*chunk_size.width),
+			image[g + (i*map_width)].setPosition((oknoAplikacji.getSize().x*0.5 + 250) - (g*chunk_size.width),
 				(oknoAplikacji.getSize().y*0.5 - 250) + (i*chunk_size.height));
 			//podwojna petla "i" dla nr wiersza i "g" dla kolumny
 			//do szerokosci dodaje wielokrotnosci kolumnowe i wierszowe dla wysokosci
@@ -140,19 +140,19 @@ int main(int argc, char** argv)
 				case 10://dodaj jednostke do gry
 						//<LISTA_jednostki><pozycja_x><pozycja_y>
 				{
-					sf::Uint8 LISTA_jednostki;
+					sf::Uint8 LIST_of_unit;
 					sf::Uint16 x;
 					sf::Uint16 y;
-					receive_packet >> LISTA_jednostki >> x >> y;
+					receive_packet >> LIST_of_unit >> x >> y;
 				}
 				case 11://zmien pozycje jednostki
 						//<id_jednostki><pozycja_x><pozycja_y>
 				{
-					sf::Uint8 id_jednostki;
+					sf::Uint8 id_unit;
 					sf::Uint16 x;
 					sf::Uint16 y;
 
-					receive_packet >> id_jednostki >> x >> y;
+					receive_packet >> id_unit >> x >> y;
 				}
 				default:
 				{
@@ -200,7 +200,7 @@ int main(int argc, char** argv)
 		oknoAplikacji.setView(v);//ustawia widok
 		for (int i = 0; i < number_of_chunks; i++)
 		{
-			oknoAplikacji.draw(obrazek[i]);//wyswietla chunki
+			oknoAplikacji.draw(image[i]);//wyswietla chunki
 		}
 		oknoAplikacji.setView(oknoAplikacji.getDefaultView());//zeby zrzutowac drzewo prosto
 		oknoAplikacji.draw(drzewo);
@@ -212,7 +212,7 @@ int main(int argc, char** argv)
 		send_packet.clear();//czyszczenie pakietu
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	delete[] obrazek;
+	delete[] image;
 	oknoAplikacji.close();
 
 	return EXIT_SUCCESS;

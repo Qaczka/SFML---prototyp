@@ -3,7 +3,8 @@
 
 using namespace std;
 
-Chunk::Chunk() {
+Chunk::Chunk()
+{
 	set_width(10);
 	set_height(10);
 }
@@ -24,7 +25,8 @@ void Chunk::set_height(double a)
 	height = a;
 }
 
-double Chunk::get_height() {
+double Chunk::get_height()
+{
 	return height;
 }
 
