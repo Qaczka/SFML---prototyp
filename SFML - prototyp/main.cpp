@@ -6,6 +6,15 @@
 #include <getopt.h>
 #endif // linux
 
+void umiesc_obiekt(sf::Sprite& obiekt,sf::Vector2u wys_obiektu, sf::Sprite *chunki, int ktory, sf::Vector2u texture1_size, sf::RenderWindow& okno, sf::View v)
+{
+	sf::Vector2f odn1;
+	sf::Vector2i odn2;
+	odn1 = chunki[ktory].getPosition();
+	odn2 = okno.mapCoordsToPixel(odn1, v);
+	obiekt.setPosition((odn2.x + (texture1_size.x*1.41 / 2) - (texture1_size.x / 2)),(odn2.y - wys_obiektu.y + (texture1_size.y*1.41 / 2) - (texture1_size.y / 2)));
+}
+
 void print_help()
 {
 	std::cout << "-p --port       default 7000\n"
@@ -70,12 +79,13 @@ int main(int argc, char** argv)
 	sf::IpAddress incomming_ip;
 	unsigned short incomming_port;
 
-	int map_width = 1, map_height = 1;
+	int map_width = 2, map_height = 2;
 	int number_of_chunks = map_width * map_height;
 	sf::Vector2f point_of_refference1;//do punktu odniesienia po przeksztalceniu view
 	sf::Vector2i point_of_refference2;
 
 	sf::RenderWindow oknoAplikacji(sf::VideoMode(1920, 1080), "Kelajno", sf::Style::Fullscreen);//to opcja fullscreen
+	oknoAplikacji.setFramerateLimit(60);//ustawiam limit fps na 60
 
 	sf::Texture texture1;//sluzy do wczytywania tekstury bo jest texture i image
 	sf::Texture texture2;
@@ -128,7 +138,8 @@ int main(int argc, char** argv)
 	v.setRotation(45);
 	point_of_refference1 = image[0].getPosition();
 	point_of_refference2 = oknoAplikacji.mapCoordsToPixel(point_of_refference1, v);
-	drzewo.setPosition((point_of_refference2.x+(texture1_size.x*1.41/2)-(texture1_size.x/2)), (point_of_refference2.y-texture4_size.y+(texture1_size.y*1.41/2) - (texture1_size.y / 2)));//i odejmuje wysokosc bo rysuje lewym gornym rogiem w dol
+	//drzewo.setPosition((point_of_refference2.x+(texture1_size.x*1.41/2)-(texture1_size.x/2)), (point_of_refference2.y-texture4_size.y+(texture1_size.y*1.41/2) - (texture1_size.y / 2)));//i odejmuje wysokosc bo rysuje lewym gornym rogiem w dol
+	umiesc_obiekt(drzewo, texture4_size, image, 1, texture1_size, oknoAplikacji, v);
 	//0.41*32/2  CZYLI: biore dane przeksztalcenia --> odejmuje wysokosc zeby rysowanie bylo od lewgo dolnego --> i teraz obnizam rysowanie tekstury do najnizszego punktu rysowania chunka --> uwzgledniam pierwsiatek po prekstalceniu w wymiarach
 	//sa przekatne wiec wymiary chunka razy sqrt2 i w jego polowie czyli /2 a potem przesuwam o polowe wymiaru chunka czyli przsuniecie jest o polowe zwiekszenia wymiaru przez pierwiastek czyli to 0.41/2
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
