@@ -70,17 +70,27 @@ int main(int argc, char** argv)
 	sf::IpAddress incomming_ip;
 	unsigned short incomming_port;
 
-	int map_width = 32, map_height = 32;
+	int map_width = 1, map_height = 1;
 	int number_of_chunks = map_width * map_height;
+	sf::Vector2f point_of_refference1;//do punktu odniesienia po przeksztalceniu view
+	sf::Vector2i point_of_refference2;
 
 	sf::RenderWindow oknoAplikacji(sf::VideoMode(1920, 1080), "Kelajno", sf::Style::Fullscreen);//to opcja fullscreen
 
 	sf::Texture texture1;//sluzy do wczytywania tekstury bo jest texture i image
-	texture1.loadFromFile("Textures/Grunt.png");//zwraca true lub false
 	sf::Texture texture2;
-	texture2.loadFromFile("Textures/Grunt2.png");
 	sf::Texture texture3;
+	sf::Texture texture4;
+
+	texture1.loadFromFile("Textures/Grunt.png");//zwraca true lub false
+	texture2.loadFromFile("Textures/Grunt2.png");
 	texture3.loadFromFile("Textures/Drzewko.png");
+	texture4.loadFromFile("Textures/Drzewko2.png");
+
+	sf::Vector2u texture1_size = texture1.getSize();
+	sf::Vector2u texture2_size = texture2.getSize();
+	sf::Vector2u texture3_size = texture3.getSize();
+	sf::Vector2u texture4_size = texture4.getSize();
 
 
 	sf::Sprite *image = new sf::Sprite[number_of_chunks];
@@ -96,7 +106,7 @@ int main(int argc, char** argv)
 		}
 	}
 	sf::Sprite drzewo;
-	drzewo.setTexture(texture3);
+	drzewo.setTexture(texture4);//zmienilem na 4 dlaa testu
 
 
 	sf::FloatRect chunk_size = image[0].getGlobalBounds();//biore info wymiarow chunka na przykladzie pierwszego
@@ -104,18 +114,23 @@ int main(int argc, char** argv)
 	{
 		for (int g = 0; g < map_width; g++)
 		{
-			image[g + (i*map_width)].setPosition((oknoAplikacji.getSize().x*0.5 + 250) - (g*chunk_size.width),
-				(oknoAplikacji.getSize().y*0.5 - 250) + (i*chunk_size.height));
+			image[g + (i*map_width)].setPosition((oknoAplikacji.getSize().x*0.5 + 250) - (g*chunk_size.width), (oknoAplikacji.getSize().y*0.5 - 250) + (i*chunk_size.height));
 			//podwojna petla "i" dla nr wiersza i "g" dla kolumny
 			//do szerokosci dodaje wielokrotnosci kolumnowe i wierszowe dla wysokosci
 			//250 na korekte
 		}
 	}
-	drzewo.setPosition((oknoAplikacji.getSize().x * 0.5), (oknoAplikacji.getSize().y * 0.5));
+	drzewo.setPosition((oknoAplikacji.getSize().x * 0.5+250), (oknoAplikacji.getSize().y * 0.5-250));
+	//mozliwe ze bedzie trzeba obracac image'e przed widokiem a potem widok wyprostuje (podnosimy prawy rog o 45 stopni)
 
 	sf::View v = oknoAplikacji.getDefaultView();//widok ma byc taki jak okno tak jakby ciagnie z niego dane
 	v.setSize(v.getSize().x, v.getSize().y * 2);//tak jak przy teksturze skalujemy 2 wieksza wysoksoc
 	v.setRotation(45);
+	point_of_refference1 = image[0].getPosition();
+	point_of_refference2 = oknoAplikacji.mapCoordsToPixel(point_of_refference1, v);
+	drzewo.setPosition((point_of_refference2.x+(texture1_size.x*1.41/2)-(texture1_size.x/2)), (point_of_refference2.y-texture4_size.y+(texture1_size.y*1.41/2) - (texture1_size.y / 2)));//i odejmuje wysokosc bo rysuje lewym gornym rogiem w dol
+	//0.41*32/2  CZYLI: biore dane przeksztalcenia --> odejmuje wysokosc zeby rysowanie bylo od lewgo dolnego --> i teraz obnizam rysowanie tekstury do najnizszego punktu rysowania chunka --> uwzgledniam pierwsiatek po prekstalceniu w wymiarach
+	//sa przekatne wiec wymiary chunka razy sqrt2 i w jego polowie czyli /2 a potem przesuwam o polowe wymiaru chunka czyli przsuniecie jest o polowe zwiekszenia wymiaru przez pierwiastek czyli to 0.41/2
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	sf::Time time;
 	sf::Clock clock;
