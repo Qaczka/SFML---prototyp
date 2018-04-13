@@ -79,7 +79,7 @@ int main(int argc, char** argv)
 	sf::IpAddress incomming_ip;
 	unsigned short incomming_port;
 
-	int map_width = 2, map_height = 2;
+	int map_width = 36, map_height = 36;
 	int number_of_chunks = map_width * map_height;
 	sf::Vector2f point_of_refference1;//do punktu odniesienia po przeksztalceniu view
 	sf::Vector2i point_of_refference2;
@@ -104,6 +104,8 @@ int main(int argc, char** argv)
 
 
 	sf::Sprite *image = new sf::Sprite[number_of_chunks];
+	sf::Sprite *drzewo = new sf::Sprite[5];
+	
 	for (int i = 0; i < number_of_chunks; i++)
 	{
 		if (i % 2 == 0)
@@ -114,9 +116,11 @@ int main(int argc, char** argv)
 		{
 			image[i].setTexture(texture2);
 		}
+		if (i < 5)
+		{
+			drzewo[i].setTexture(texture4);
+		}
 	}
-	sf::Sprite drzewo;
-	drzewo.setTexture(texture4);//zmienilem na 4 dlaa testu
 
 
 	sf::FloatRect chunk_size = image[0].getGlobalBounds();//biore info wymiarow chunka na przykladzie pierwszego
@@ -130,7 +134,7 @@ int main(int argc, char** argv)
 			//250 na korekte
 		}
 	}
-	drzewo.setPosition((oknoAplikacji.getSize().x * 0.5+250), (oknoAplikacji.getSize().y * 0.5-250));
+	//drzewo.setPosition((oknoAplikacji.getSize().x * 0.5+250), (oknoAplikacji.getSize().y * 0.5-250));
 	//mozliwe ze bedzie trzeba obracac image'e przed widokiem a potem widok wyprostuje (podnosimy prawy rog o 45 stopni)
 
 	sf::View v = oknoAplikacji.getDefaultView();//widok ma byc taki jak okno tak jakby ciagnie z niego dane
@@ -139,7 +143,11 @@ int main(int argc, char** argv)
 	point_of_refference1 = image[0].getPosition();
 	point_of_refference2 = oknoAplikacji.mapCoordsToPixel(point_of_refference1, v);
 	//drzewo.setPosition((point_of_refference2.x+(texture1_size.x*1.41/2)-(texture1_size.x/2)), (point_of_refference2.y-texture4_size.y+(texture1_size.y*1.41/2) - (texture1_size.y / 2)));//i odejmuje wysokosc bo rysuje lewym gornym rogiem w dol
-	umiesc_obiekt(drzewo, texture4_size, image, 1, texture1_size, oknoAplikacji, v);
+	umiesc_obiekt(drzewo[0], texture4_size, image, 1000, texture1_size, oknoAplikacji, v);
+	umiesc_obiekt(drzewo[1], texture4_size, image, 250, texture1_size, oknoAplikacji, v);
+	umiesc_obiekt(drzewo[2], texture4_size, image, 453, texture1_size, oknoAplikacji, v);
+	umiesc_obiekt(drzewo[3], texture4_size, image, 841, texture1_size, oknoAplikacji, v);
+	umiesc_obiekt(drzewo[4], texture4_size, image, 10, texture1_size, oknoAplikacji, v);
 	//0.41*32/2  CZYLI: biore dane przeksztalcenia --> odejmuje wysokosc zeby rysowanie bylo od lewgo dolnego --> i teraz obnizam rysowanie tekstury do najnizszego punktu rysowania chunka --> uwzgledniam pierwsiatek po prekstalceniu w wymiarach
 	//sa przekatne wiec wymiary chunka razy sqrt2 i w jego polowie czyli /2 a potem przesuwam o polowe wymiaru chunka czyli przsuniecie jest o polowe zwiekszenia wymiaru przez pierwiastek czyli to 0.41/2
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -229,7 +237,10 @@ int main(int argc, char** argv)
 			oknoAplikacji.draw(image[i]);//wyswietla chunki
 		}
 		oknoAplikacji.setView(oknoAplikacji.getDefaultView());//zeby zrzutowac drzewo prosto
-		oknoAplikacji.draw(drzewo);
+		for (int i = 0; i < 5; i++)
+		{
+			oknoAplikacji.draw(drzewo[i]);
+		}
 		oknoAplikacji.display();
 
 
