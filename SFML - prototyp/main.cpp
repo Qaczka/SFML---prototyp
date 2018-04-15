@@ -102,7 +102,7 @@ int main(int argc, char** argv)
 	int map_width = 36, map_height = 36;
 	int number_of_chunks = map_width * map_height;
 	int number_of_trees1 = 8;
-	int speed_of_scrolling = 4;
+	int speed_of_scrolling = 10;
 	double object_scroll = speed_of_scrolling*sqrt(2);//predkosc po przekstalceniu
 
 	//MODYFIKOWANIE OKNA APLIKACJI
@@ -200,8 +200,8 @@ int main(int argc, char** argv)
 		mouse_possition = sf::Mouse::getPosition(oknoAplikacji);//pobieram wspolrzedne myszki w kazdej klatce
 
 
-							   //GŁÓWNA PĘTLA PAKIETÓW
-							   //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		//GŁÓWNA PĘTLA PAKIETÓW
+		//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		while (!socket.receive(receive_packet, incomming_ip, incomming_port))
 		{
 			while (!receive_packet.endOfPacket())
@@ -245,22 +245,18 @@ int main(int argc, char** argv)
 			case sf::Event::Closed:
 				quit = true;
 				break;
-			default:
-				break;
-			}
+			case sf::Event::KeyPressed:
 
-			switch (zdarzenie.key.code)
-			{
-			case sf::Keyboard::Escape:
+				switch (zdarzenie.key.code)
+				{
+				case sf::Keyboard::Escape:
 				quit = true;
 				break;
-			default:
+				default:
 				break;
-			}
-
-			switch (zdarzenie.mouseButton.button)
-			{
-			case sf::Mouse::Middle:
+				}
+				break;
+			case sf::Event::MouseButtonPressed:
 				quit = true;
 				break;
 			default:
@@ -270,23 +266,23 @@ int main(int argc, char** argv)
 			//--------------- PRZESUWANIE KAMERY --------------------------------------------//
 			if (mouse_possition.x == 0)
 			{
-				chunk_view.move(-4, -4);//kamera w lewo
+				chunk_view.move(-speed_of_scrolling, -speed_of_scrolling);//kamera w lewo
 				object_view.move(-object_scroll, 0);
 			}
 			if (mouse_possition.y == 0)
 			{
-				chunk_view.move(4, -4);//kamera w gore
-				object_view.move(0, -object_scroll);
+				chunk_view.move(speed_of_scrolling, -speed_of_scrolling);//kamera w gore
+				object_view.move(0, -object_scroll/2);//W OSI Y TRZEBA POLOWA BO RENDER BYL W 2 WIEKSZEJ WIELKOSCI
 			}
 			if (mouse_possition.x == oknoAplikacji.getSize().x-1)
 			{
-				chunk_view.move(4, 4);//kamera w prawo
+				chunk_view.move(speed_of_scrolling, speed_of_scrolling);//kamera w prawo
 				object_view.move(object_scroll, 0);
 			}
 			if (mouse_possition.y == oknoAplikacji.getSize().y-1)
 			{
-				chunk_view.move(-4, 4);//kamera w dol
-				object_view.move(0, object_scroll);
+				chunk_view.move(-speed_of_scrolling, speed_of_scrolling);//kamera w dol
+				object_view.move(0, object_scroll/2);//W OSI Y TRZEBA POLOWA BO RENDER BYL W 2 WIEKSZEJ WIELKOSCI
 			}
 			//dla objektow uzywam object_scroll tutaj sqrt(2)*speed_of_scrolling bo po przekstalceniu
 			
