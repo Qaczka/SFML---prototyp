@@ -1,21 +1,37 @@
 ﻿#include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
 #include <iostream>
-#include <math.h>
+#include <cmath>
+
+//#include "../common/network_opcodes.hpp"
+#include "network_opcodes.hpp"
 
 #ifdef linux
 #include <getopt.h>
 #endif // linux
 
-void umiesc_obiekt(sf::Sprite& obiekt,sf::Vector2u wys_obiektu, sf::Sprite *chunki, int ktory, sf::Vector2u texture1_size, sf::RenderWindow& okno, sf::View v)
+void umiesc_obiekt(sf::Sprite& obiekt,
+	sf::Vector2u wys_obiektu,
+	sf::Sprite *chunki,
+	int ktory,
+	sf::Vector2u texture1_size,
+	sf::RenderWindow& okno,
+	sf::View v)
 {
 	sf::Vector2f odn1;
 	sf::Vector2i odn2;
 	odn1 = chunki[ktory].getPosition();
 	odn2 = okno.mapCoordsToPixel(odn1, v);
-	obiekt.setPosition((odn2.x + (texture1_size.x*sqrt(2) / 2) - (texture1_size.x / 2)),(odn2.y - wys_obiektu.y + (texture1_size.y*sqrt(2) / 2) - (texture1_size.y / 2)));
-	//0.4142*32/2  CZYLI: biore dane przeksztalcenia --> odejmuje wysokosc zeby rysowanie bylo od lewgo dolnego rogu--> i teraz obnizam rysowanie tekstury do najnizszego punktu rysowania chunka --> uwzgledniam pierwsiatek po prekstalceniu w wymiarach
-	//sa przekatne wiec wymiary chunka razy sqrt2 i w jego polowie czyli /2 a potem przesuwam o polowe wymiaru chunka czyli przsuniecie jest o polowe zwiekszenia wymiaru przez pierwiastek czyli to 0.41/2
+	obiekt.setPosition((odn2.x + (texture1_size.x*sqrt(2) / 2) - (texture1_size.x / 2)),
+		(odn2.y - wys_obiektu.y + (texture1_size.y*sqrt(2) / 2) - (texture1_size.y / 2)));
+	//0.4142*32/2  CZYLI: biore dane przeksztalcenia
+	//--> odejmuje wysokosc zeby rysowanie bylo od lewgo dolnego rogu
+	//--> i teraz obnizam rysowanie tekstury do najnizszego punktu rysowania chunka
+	//--> uwzgledniam pierwsiatek po prekstalceniu w wymiarach
+
+	//sa przekatne wiec wymiary chunka razy sqrt2 i w jego polowie czyli /2
+	//a potem przesuwam o polowe wymiaru chunka
+	//czyli przsuniecie jest o polowe zwiekszenia wymiaru przez pierwiastek czyli to 0.41/2
 }
 
 void print_help()
@@ -25,7 +41,7 @@ void print_help()
 		"-i --ip         default localhost\n"
 		"-h --help       this message\n";
 }
-//----------------------------------------------------------------------------------------------------------------------------//
+//---------------------------------------------------------------------------------------------------------------------//
 int main(int argc, char** argv)
 {
 	//zmienne które można modyfikować argumentami z konsoli
@@ -69,7 +85,7 @@ int main(int argc, char** argv)
 		}
 	}
 #endif // linux
-//----------------------------------------------------------------------------------------------------------------------------//
+	//---------------------------------------------------------------------------------------------------------------------//
 	bool quit = false;
 	sf::UdpSocket socket;
 	socket.setBlocking(false);
@@ -86,11 +102,17 @@ int main(int argc, char** argv)
 	int map_width = 36, map_height = 36;
 	int number_of_chunks = map_width * map_height;
 	int number_of_trees1 = 8;
+	int speed_of_scrolling = 4;
+	double object_scroll = speed_of_scrolling*sqrt(2);//predkosc po przekstalceniu
 
 	//MODYFIKOWANIE OKNA APLIKACJI
 	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	sf::RenderWindow oknoAplikacji(sf::VideoMode(1920, 1080), "Kelajno", sf::Style::Fullscreen);//to opcja fullscreen
 	oknoAplikacji.setFramerateLimit(60);//ustawiam limit fps na 60
+
+	//POMOCNE ZMIENNE 2
+	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	sf::Vector2i mouse_possition = sf::Mouse::getPosition(oknoAplikacji);
 
 	//WCZYTYWANIE TEKSTUR
 	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -113,7 +135,7 @@ int main(int argc, char** argv)
 	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	sf::Sprite *image = new sf::Sprite[number_of_chunks];
 	sf::Sprite *drzewo = new sf::Sprite[number_of_trees1];
-	
+
 	//PRZYPISYWANIE TEKSTUR DO CHUNKÓW
 	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	for (int i = 0; i < number_of_chunks; i++)
@@ -126,6 +148,7 @@ int main(int argc, char** argv)
 		{
 			image[i].setTexture(texture2);
 		}
+
 		if (i < number_of_trees1)
 		{
 			drzewo[i].setTexture(texture4);
@@ -139,69 +162,70 @@ int main(int argc, char** argv)
 	{
 		for (int g = 0; g < map_width; g++)
 		{
-			image[g + (i*map_width)].setPosition((oknoAplikacji.getSize().x*0.5 + 250) - (g*chunk_size.width), (oknoAplikacji.getSize().y*0.5 - 250) + (i*chunk_size.height));
-			//podwojna petla "i" dla nr wiersza i "g" dla kolumny do szerokosci dodaje wielokrotnosci kolumnowe i wierszowe dla wysokosci 250 na korekte
+			image[g + (i*map_width)].setPosition((oknoAplikacji.getSize().x*0.5 + 250) - (g*chunk_size.width),
+				(oknoAplikacji.getSize().y*0.5 - 250) + (i*chunk_size.height));
+			//podwojna petla "i" dla nr wiersza i "g" dla kolumny
+			//do szerokosci dodaje wielokrotnosci kolumnowe i wierszowe dla wysokosci 250 na korekte
 		}
 	}
 
 	//MODYFIKOWANIE WIDOKU
 	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	sf::View v = oknoAplikacji.getDefaultView();//widok ma byc taki jak okno tak jakby ciagnie z niego dane
-	v.setSize(v.getSize().x, v.getSize().y * 2);//tak jak przy teksturze skalujemy 2 wieksza wysoksoc
-	v.setRotation(45);
-	
+	sf::View chunk_view = oknoAplikacji.getDefaultView();//widok ma byc taki jak okno tak jakby ciagnie z niego dane
+	chunk_view.setSize(chunk_view.getSize().x, chunk_view.getSize().y * 2);//tak jak przy teksturze skalujemy 2 wieksza wysoksoc
+	chunk_view.setRotation(45);
+	chunk_view.setCenter(oknoAplikacji.getSize().x*0.5, oknoAplikacji.getSize().y*0.5);
+
+	sf::View object_view = oknoAplikacji.getDefaultView();
+
 	//UMIESZCZANIE OBIEKTÓW NA KONKRETNYCH CHUNKACH
 	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	umiesc_obiekt(drzewo[0], texture4_size, image, 1000, texture1_size, oknoAplikacji, v);
-	umiesc_obiekt(drzewo[1], texture4_size, image, 250, texture1_size, oknoAplikacji, v);
-	umiesc_obiekt(drzewo[2], texture4_size, image, 453, texture1_size, oknoAplikacji, v);
-	umiesc_obiekt(drzewo[3], texture4_size, image, 841, texture1_size, oknoAplikacji, v);
-	umiesc_obiekt(drzewo[4], texture4_size, image, 134, texture1_size, oknoAplikacji, v);
-	umiesc_obiekt(drzewo[5], texture4_size, image, 345, texture1_size, oknoAplikacji, v);
-	umiesc_obiekt(drzewo[6], texture4_size, image, 612, texture1_size, oknoAplikacji, v);
-	umiesc_obiekt(drzewo[7], texture4_size, image, 748, texture1_size, oknoAplikacji, v);
-	
-//----------------------------------------------------------------------------------------------------------------------------//
+	umiesc_obiekt(drzewo[0], texture4_size, image, 1000, texture1_size, oknoAplikacji, chunk_view);
+	umiesc_obiekt(drzewo[1], texture4_size, image, 250, texture1_size, oknoAplikacji, chunk_view);
+	umiesc_obiekt(drzewo[2], texture4_size, image, 453, texture1_size, oknoAplikacji, chunk_view);
+	umiesc_obiekt(drzewo[3], texture4_size, image, 841, texture1_size, oknoAplikacji, chunk_view);
+	umiesc_obiekt(drzewo[4], texture4_size, image, 134, texture1_size, oknoAplikacji, chunk_view);
+	umiesc_obiekt(drzewo[5], texture4_size, image, 345, texture1_size, oknoAplikacji, chunk_view);
+	umiesc_obiekt(drzewo[6], texture4_size, image, 612, texture1_size, oknoAplikacji, chunk_view);
+	umiesc_obiekt(drzewo[7], texture4_size, image, 748, texture1_size, oknoAplikacji, chunk_view);
+
+	//---------------------------------------------------------------------------------------------------------------------//
 	sf::Time time;
 	sf::Clock clock;
-
 	//GŁÓWNA PĘTLA GRY
 	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	while (!quit)
 	{
 		time = clock.restart();//pobranie czasu
+		mouse_possition = sf::Mouse::getPosition(oknoAplikacji);//pobieram wspolrzedne myszki w kazdej klatce
 
 
-		//GŁÓWNA PĘTLA PAKIETÓW
-		//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+							   //GŁÓWNA PĘTLA PAKIETÓW
+							   //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		while (!socket.receive(receive_packet, incomming_ip, incomming_port))
 		{
 			while (!receive_packet.endOfPacket())
 			{
-				sf::Uint8 command;
-				receive_packet >> command;
+				sf::Uint8 opcode;
+				receive_packet >> opcode;
 
-				//dokumentacja przychodzących komend
-				//id - oznacza, że operacja dotyczy obiektu w aktualnej grze
-				//LISTA - oznacza, że operacja dotyczy nowego obiektu(dopiero do dodania do aktualnej gry)
-				switch (command)
+				switch (opcode)
 				{
-				case 10://dodaj jednostke do gry
-						//<LISTA_jednostki><pozycja_x><pozycja_y>
+				case ADD_UNIT_TO_GAME:
 				{
-					sf::Uint8 LIST_of_unit;
+					sf::Uint8 LISTA_jednostki;
 					sf::Uint16 x;
 					sf::Uint16 y;
-					receive_packet >> LIST_of_unit >> x >> y;
+					receive_packet >> LISTA_jednostki >> x >> y;
+					break;
 				}
-				case 11://zmien pozycje jednostki
-						//<id_jednostki><pozycja_x><pozycja_y>
+				case SET_UNIT_POSITION:
 				{
-					sf::Uint8 id_unit;
+					sf::Uint8 ID_jednostki;
 					sf::Uint16 x;
 					sf::Uint16 y;
-
-					receive_packet >> id_unit >> x >> y;
+					receive_packet >> ID_jednostki >> x >> y;
+					break;
 				}
 				default:
 				{
@@ -242,27 +266,42 @@ int main(int argc, char** argv)
 			default:
 				break;
 			}
-			/*
-			switch (zdarzenie.MouseEntered)
+			
+			//--------------- PRZESUWANIE KAMERY --------------------------------------------//
+			if (mouse_possition.x == 0)
 			{
-				case sf::Mouse::getPosition
-				quit = true;
-				break;
-			default:
-				break;
+				chunk_view.move(-4, -4);//kamera w lewo
+				object_view.move(-object_scroll, 0);
 			}
-			*/
+			if (mouse_possition.y == 0)
+			{
+				chunk_view.move(4, -4);//kamera w gore
+				object_view.move(0, -object_scroll);
+			}
+			if (mouse_possition.x == oknoAplikacji.getSize().x-1)
+			{
+				chunk_view.move(4, 4);//kamera w prawo
+				object_view.move(object_scroll, 0);
+			}
+			if (mouse_possition.y == oknoAplikacji.getSize().y-1)
+			{
+				chunk_view.move(-4, 4);//kamera w dol
+				object_view.move(0, object_scroll);
+			}
+			//dla objektow uzywam object_scroll tutaj sqrt(2)*speed_of_scrolling bo po przekstalceniu
+			
 		}
 
 		//RENDER OBRAZU
 		//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		oknoAplikacji.clear();
-		oknoAplikacji.setView(v);//ustawia widok
+		oknoAplikacji.setView(chunk_view);//ustawia widok
 		for (int i = 0; i < number_of_chunks; i++)
 		{
 			oknoAplikacji.draw(image[i]);//wyswietla chunki
 		}
-		oknoAplikacji.setView(oknoAplikacji.getDefaultView());//zeby zrzutowac jednostki i obiekty prosto
+		//oknoAplikacji.setView(oknoAplikacji.getDefaultView());//zeby zrzutowac jednostki i obiekty prosto
+		oknoAplikacji.setView(object_view);
 		for (int i = 0; i < number_of_trees1; i++)
 		{
 			oknoAplikacji.draw(drzewo[i]);
@@ -272,7 +311,7 @@ int main(int argc, char** argv)
 		socket.send(send_packet, remote_ip, remote_port);//wyslanie pakietu
 		send_packet.clear();//czyszczenie pakietu
 	}
-//----------------------------------------------------------------------------------------------------------------------------//
+	//---------------------------------------------------------------------------------------------------------------------//
 	delete[] image;
 	delete[] drzewo;
 	oknoAplikacji.close();
