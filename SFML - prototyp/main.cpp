@@ -2,6 +2,7 @@
 #include <SFML/Network.hpp>
 #include <iostream>
 #include <cmath>
+#include <cstdlib>
 
 //#include "../common/network_opcodes.hpp"
 #include "network_opcodes.hpp"
@@ -106,10 +107,12 @@ int main(int argc, char** argv)
 	int number_of_trees1 = 8;
 	int number_of_units1 = 2;
 	int speed_of_scrolling = 10;
-	float game_zoom = 0.0f; // od -0.5 do 0.5
+	float game_zoom = 0.0f; // od -1.5 do 0.5
 	int zoom_step=60;//mnoznik sily zooma
 	double object_scroll = speed_of_scrolling*sqrt(2);//predkosc po przekstalceniu
 	int resolution_width = 1920, resolution_height=1080;
+	srand(time(NULL));
+	int random_number1 = std::rand();
 
 
 	//MODYFIKOWANIE OKNA APLIKACJI
@@ -128,18 +131,27 @@ int main(int argc, char** argv)
 	sf::Texture texture3;
 	sf::Texture texture4;
 	sf::Texture texture5;
+	sf::Texture texture_grass1;
+	sf::Texture texture_grass2;
+	sf::Texture texture_grass3;
 
 	texture1.loadFromFile("Textures/Grunt.png");//zwraca true lub false
 	texture2.loadFromFile("Textures/Grunt2.png");
 	texture3.loadFromFile("Textures/Drzewko.png");
 	texture4.loadFromFile("Textures/Drzewko2.png");
 	texture5.loadFromFile("Textures/Czolg.png");
+	texture_grass1.loadFromFile("Textures/Trawa1.png");
+	texture_grass2.loadFromFile("Textures/Trawa2.png");
+	texture_grass3.loadFromFile("Textures/Trawa3.png");
 
 	sf::Vector2u texture1_size = texture1.getSize();
 	sf::Vector2u texture2_size = texture2.getSize();
 	sf::Vector2u texture3_size = texture3.getSize();
 	sf::Vector2u texture4_size = texture4.getSize();
 	sf::Vector2u texture5_size = texture5.getSize();
+	sf::Vector2u texture_grass1_size = texture_grass1.getSize();
+	sf::Vector2u texture_grass2_size = texture_grass2.getSize();
+	sf::Vector2u texture_grass3_size = texture_grass3.getSize();
 
 	//TABLICE OBIEKTÓW
 	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -151,13 +163,27 @@ int main(int argc, char** argv)
 	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	for (int i = 0; i < number_of_chunks; i++)
 	{
-		if (i % 2 == 0)
+		random_number1= std::rand();
+		//if (i % 2 == 0)
+		if(random_number1 % 5 == 0)
 		{
 			image[i].setTexture(texture1);
 		}
-		else
+		else if (random_number1 % 5 == 1)
 		{
 			image[i].setTexture(texture2);
+		}
+		else if (random_number1 % 5 == 2)
+		{
+			image[i].setTexture(texture_grass1);
+		}
+		else if (random_number1 % 5 == 3)
+		{
+			image[i].setTexture(texture_grass2);
+		}
+		else if (random_number1 % 5 == 4)
+		{
+			image[i].setTexture(texture_grass3);
 		}
 
 		if (i < number_of_trees1)
@@ -306,7 +332,7 @@ int main(int argc, char** argv)
 			case sf::Event::MouseWheelScrolled:
 					if (zdarzenie.mouseWheelScroll.delta <= -1)
 					{
-						if (game_zoom < 0.5f)
+						if (game_zoom < 0.5f)//oddalanie
 						{
 							game_zoom += 0.1f;
 							chunk_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height * 2) + (9 * zoom_step * 2)*game_zoom);//zmieniamy rozmiar widoku na pozadany dodajemy wielokrotnosci stosunku rozdzielczosci (wysokosc * 2 bo render wysokosciowy mmial byc 2 razy wiekszy dla chunkow)
@@ -315,7 +341,7 @@ int main(int argc, char** argv)
 					}
 					if (zdarzenie.mouseWheelScroll.delta >= 1)
 					{
-						if (game_zoom > -0.5f)
+						if (game_zoom > -1.5f)//przyblizanie
 						{
 							game_zoom -= 0.1f;
 							chunk_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height * 2) + (9 * zoom_step * 2)*game_zoom);
