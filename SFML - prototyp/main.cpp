@@ -45,7 +45,7 @@ void print_help()
 int main(int argc, char** argv)
 {
 	//zmienne które można modyfikować argumentami z konsoli
-	unsigned short local_port = 8000;
+	unsigned short local_port = 8000;//port na którym aplikacja odbiera połączenia
 	unsigned short remote_port = 7000;//port do którego się łączymy
 	sf::IpAddress remote_ip = "localhost";//ip do którego się łączymy
 
@@ -86,11 +86,13 @@ int main(int argc, char** argv)
 	}
 #endif // linux
 	//---------------------------------------------------------------------------------------------------------------------//
-	bool quit = false;
+	bool quit = false;//główny wyłącznik
+
+	//POMOCNE ZMIENNE
+	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	sf::UdpSocket socket;
 	socket.setBlocking(false);
 	socket.bind(local_port);
-
 
 	sf::Packet send_packet;
 	sf::Packet receive_packet;
@@ -102,12 +104,17 @@ int main(int argc, char** argv)
 	int map_width = 36, map_height = 36;
 	int number_of_chunks = map_width * map_height;
 	int number_of_trees1 = 8;
+	int number_of_units1 = 2;
 	int speed_of_scrolling = 10;
+	float game_zoom = 0.0f; // od -0.5 do 0.5
+	int zoom_step=60;//mnoznik sily zooma
 	double object_scroll = speed_of_scrolling*sqrt(2);//predkosc po przekstalceniu
+	int resolution_width = 1920, resolution_height=1080;
+
 
 	//MODYFIKOWANIE OKNA APLIKACJI
 	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	sf::RenderWindow oknoAplikacji(sf::VideoMode(1920, 1080), "Kelajno", sf::Style::Fullscreen);//to opcja fullscreen
+	sf::RenderWindow oknoAplikacji(sf::VideoMode(resolution_width, resolution_height), "Kelajno", sf::Style::Fullscreen);//to opcja fullscreen
 	oknoAplikacji.setFramerateLimit(60);//ustawiam limit fps na 60
 
 	//POMOCNE ZMIENNE 2
@@ -120,21 +127,25 @@ int main(int argc, char** argv)
 	sf::Texture texture2;
 	sf::Texture texture3;
 	sf::Texture texture4;
+	sf::Texture texture5;
 
 	texture1.loadFromFile("Textures/Grunt.png");//zwraca true lub false
 	texture2.loadFromFile("Textures/Grunt2.png");
 	texture3.loadFromFile("Textures/Drzewko.png");
 	texture4.loadFromFile("Textures/Drzewko2.png");
+	texture5.loadFromFile("Textures/Czolg.png");
 
 	sf::Vector2u texture1_size = texture1.getSize();
 	sf::Vector2u texture2_size = texture2.getSize();
 	sf::Vector2u texture3_size = texture3.getSize();
 	sf::Vector2u texture4_size = texture4.getSize();
+	sf::Vector2u texture5_size = texture5.getSize();
 
 	//TABLICE OBIEKTÓW
 	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	sf::Sprite *image = new sf::Sprite[number_of_chunks];
 	sf::Sprite *drzewo = new sf::Sprite[number_of_trees1];
+	sf::Sprite *unit1 = new sf::Sprite[number_of_units1];
 
 	//PRZYPISYWANIE TEKSTUR DO CHUNKÓW
 	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -152,6 +163,11 @@ int main(int argc, char** argv)
 		if (i < number_of_trees1)
 		{
 			drzewo[i].setTexture(texture4);
+		}
+
+		if (i < number_of_units1)
+		{
+			unit1[i].setTexture(texture5);
 		}
 	}
 
@@ -178,6 +194,11 @@ int main(int argc, char** argv)
 
 	sf::View object_view = oknoAplikacji.getDefaultView();
 
+	sf::View minimap_view = chunk_view;
+	minimap_view.zoom(1.3f);
+	//minimap_view.setSize(chunk_view.getSize().x/6, chunk_view.getSize().y * 2/6);
+	minimap_view.setViewport(sf::FloatRect(0.0f, 0.75f, 0.25f, 0.25f));
+
 	//UMIESZCZANIE OBIEKTÓW NA KONKRETNYCH CHUNKACH
 	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	umiesc_obiekt(drzewo[0], texture4_size, image, 1000, texture1_size, oknoAplikacji, chunk_view);
@@ -188,11 +209,13 @@ int main(int argc, char** argv)
 	umiesc_obiekt(drzewo[5], texture4_size, image, 345, texture1_size, oknoAplikacji, chunk_view);
 	umiesc_obiekt(drzewo[6], texture4_size, image, 612, texture1_size, oknoAplikacji, chunk_view);
 	umiesc_obiekt(drzewo[7], texture4_size, image, 748, texture1_size, oknoAplikacji, chunk_view);
+	umiesc_obiekt(unit1[0], texture5_size, image, 749, texture1_size, oknoAplikacji, chunk_view);
+	umiesc_obiekt(unit1[1], texture5_size, image, 46, texture1_size, oknoAplikacji, chunk_view);
 
 	//---------------------------------------------------------------------------------------------------------------------//
 	sf::Time time;
 	sf::Clock clock;
-	//GŁÓWNA PĘTLA GRY
+	//OBSŁUGA GRY
 	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	while (!quit)
 	{
@@ -213,17 +236,17 @@ int main(int argc, char** argv)
 				{
 				case ADD_UNIT_TO_GAME:
 				{
-					sf::Uint8 LISTA_jednostki;
-					sf::Uint16 x;
-					sf::Uint16 y;
-					receive_packet >> LISTA_jednostki >> x >> y;
+					sf::Uint8 BP_jednostki;
+					sf::Uint8 x;
+					sf::Uint8 y;
+					receive_packet >> BP_jednostki >> x >> y;
 					break;
 				}
 				case SET_UNIT_POSITION:
 				{
 					sf::Uint8 ID_jednostki;
-					sf::Uint16 x;
-					sf::Uint16 y;
+					sf::Uint8 x;
+					sf::Uint8 y;
 					receive_packet >> ID_jednostki >> x >> y;
 					break;
 				}
@@ -252,15 +275,58 @@ int main(int argc, char** argv)
 				case sf::Keyboard::Escape:
 				quit = true;
 				break;
+				case sf::Keyboard::Num8:
+					if (game_zoom < 0.5f)
+					{
+						game_zoom += 0.1f;
+						chunk_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height * 2) + (9 * zoom_step*2)*game_zoom);//zmieniamy rozmiar widoku na pozadany dodajemy wielokrotnosci stosunku rozdzielczosci (wysokosc * 2 bo render wysokosciowy mmial byc 2 razy wiekszy dla chunkow)
+						object_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height)+(9 * zoom_step)*game_zoom);
+					}
+				break;
+				case sf::Keyboard::Num2:
+					if (game_zoom > -0.5f)
+					{
+						game_zoom -= 0.1f;
+						chunk_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height * 2) + (9 * zoom_step*2)*game_zoom);
+						object_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height) + (9 * zoom_step)*game_zoom);
+					}
+				break;
 				default:
 				break;
 				}
 				break;
+
 			case sf::Event::MouseButtonPressed:
-				quit = true;
 				break;
+
 			default:
 				break;
+
+				//------------------------ZOOMOWANIE KAMERY -----------------------//
+			case sf::Event::MouseWheelScrolled:
+					if (zdarzenie.mouseWheelScroll.delta <= -1)
+					{
+						if (game_zoom < 0.5f)
+						{
+							game_zoom += 0.1f;
+							chunk_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height * 2) + (9 * zoom_step * 2)*game_zoom);//zmieniamy rozmiar widoku na pozadany dodajemy wielokrotnosci stosunku rozdzielczosci (wysokosc * 2 bo render wysokosciowy mmial byc 2 razy wiekszy dla chunkow)
+							object_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height)+(9 * zoom_step)*game_zoom);
+						}
+					}
+					if (zdarzenie.mouseWheelScroll.delta >= 1)
+					{
+						if (game_zoom > -0.5f)
+						{
+							game_zoom -= 0.1f;
+							chunk_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height * 2) + (9 * zoom_step * 2)*game_zoom);
+							object_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height)+(9 * zoom_step)*game_zoom);
+						}
+					}
+					std::cout << "wheel movement: " << zdarzenie.mouseWheelScroll.delta << std::endl;
+					std::cout << "mouse x: " << zdarzenie.mouseWheelScroll.x << std::endl;
+					std::cout << "mouse y: " << zdarzenie.mouseWheelScroll.y << std::endl;
+				break;
+
 			}
 			
 			//--------------- PRZESUWANIE KAMERY --------------------------------------------//
@@ -302,6 +368,16 @@ int main(int argc, char** argv)
 		{
 			oknoAplikacji.draw(drzewo[i]);
 		}
+		for (int i = 0; i < number_of_units1; i++)
+		{
+			oknoAplikacji.draw(unit1[i]);
+		}
+
+		oknoAplikacji.setView(minimap_view);
+		for (int i = 0; i < number_of_chunks; i++)
+		{
+			oknoAplikacji.draw(image[i]);//wyswietla chunki
+		}
 		oknoAplikacji.display();
 
 		socket.send(send_packet, remote_ip, remote_port);//wyslanie pakietu
@@ -312,6 +388,7 @@ int main(int argc, char** argv)
 	delete[] drzewo;
 	oknoAplikacji.close();
 
+	system("PAUSE");
 	return EXIT_SUCCESS;
 }
 
