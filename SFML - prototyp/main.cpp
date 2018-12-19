@@ -324,9 +324,12 @@ int main(int argc, char** argv)
 				switch (event.key.code)
 				{
 				case Keyboard::Escape:
+				{
 					quit = true;
 					break;
+				}
 				case Keyboard::Numpad8:
+				{
 					if (game_zoom < 0.5f)
 					{
 						game_zoom += 0.1f;
@@ -335,7 +338,9 @@ int main(int argc, char** argv)
 						object_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height)+(9 * zoom_step)*game_zoom);
 					}
 					break;
+				}
 				case Keyboard::Numpad2:
+				{
 					if (game_zoom > -0.5f)
 					{
 						game_zoom -= 0.1f;
@@ -343,6 +348,7 @@ int main(int argc, char** argv)
 						object_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height)+(9 * zoom_step)*game_zoom);
 					}
 					break;
+				}
 				default:
 					break;
 				}
