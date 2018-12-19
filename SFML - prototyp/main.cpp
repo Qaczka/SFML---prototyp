@@ -14,7 +14,7 @@
 using namespace sf;
 using namespace std;
 
-void umiesc_obiekt(Sprite& obiekt, Vector2u wys_obiektu, Sprite *chunki, int ktory,
+void place_object(Sprite& obiekt, Vector2u wys_obiektu, Sprite *chunki, int ktory,
 	Vector2u texture1_size, RenderWindow& okno, View v)
 {
 	Vector2f odn1;
@@ -106,9 +106,9 @@ int main(int argc, char** argv)
 	int number_of_units1 = 2;
 	int speed_of_scrolling = 10;
 	float game_zoom = 0.0f; // From -1.5 to 0.5
-	int zoom_step=60; //Zoom power multipier
-	double object_scroll = speed_of_scrolling*sqrt(2);//Velocity after transformation
-	int resolution_width = 1920, resolution_height=1080;
+	int zoom_step = 60; //Zoom power multipier
+	double object_scroll = speed_of_scrolling * sqrt(2);//Velocity after transformation
+	int resolution_width = 1920, resolution_height = 1080;
 	srand(time(NULL));
 	int random_number1 = rand();
 	Vector2i mouse_position;
@@ -162,7 +162,7 @@ int main(int argc, char** argv)
 	//OBJECTS ARRAYS
 	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	Sprite *chunk = new Sprite[number_of_chunks];
-	Sprite *drzewo = new Sprite[number_of_trees1];
+	Sprite *tree = new Sprite[number_of_trees1];
 	Sprite *bush1 = new Sprite[number_of_bushes1];
 	Sprite *unit1 = new Sprite[number_of_units1];
 
@@ -170,9 +170,9 @@ int main(int argc, char** argv)
 	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	for (int i = 0; i < number_of_chunks; i++)
 	{
-		random_number1= rand();
+		random_number1 = rand();
 		//if (i % 2 == 0)
-		if(random_number1 % 5 == 0)
+		if (random_number1 % 5 == 0)
 		{
 			chunk[i].setTexture(texture1);
 		}
@@ -195,7 +195,7 @@ int main(int argc, char** argv)
 
 		if (i < number_of_trees1)
 		{
-			drzewo[i].setTexture(texture_tree1);
+			tree[i].setTexture(texture_tree1);
 		}
 
 		if (i < number_of_bushes1)
@@ -229,53 +229,37 @@ int main(int argc, char** argv)
 	chunk_view.setSize(chunk_view.getSize().x, chunk_view.getSize().y * 2);//As texture we're scaling it up by 2 times
 	chunk_view.setRotation(45);
 	chunk_view.setCenter(applicationWindow.getSize().x*0.5, applicationWindow.getSize().y*0.5);
-	//cout << chunk_view.getSize().x << " " << chunk_view.getSize().y << endl;
 	View object_view = applicationWindow.getDefaultView();
-	//chunk[0].setTexture(texture_test1);
-
 
 	View minimap_view = chunk_view;
 	minimap_view.zoom(1.3f);//Minimap zoom
-	//minimap_view.setSize(chunk_view.getSize().x/6, chunk_view.getSize().y * 2/6);
-	//minimap_view.setViewport(FloatRect(0.0f, 0.75f, 0.25f, 0.25f));
 	minimap_view.setViewport(FloatRect(0.0f, 0.75f, 0.25f, 0.25f));
-	//minimap_view.setSize(chunk_size.width*sqrt(2)*map_width, chunk_size.height*sqrt(2)*map_height);
-	minimap_view.setCenter(chunk_size.width*sqrt(2)*map_width/2, chunk_size.height*sqrt(2)*map_height/2);
+	minimap_view.setCenter(chunk_size.width*sqrt(2)*map_width / 2, chunk_size.height*sqrt(2)*map_height / 2);
 
 	if ((chunk_size.width*sqrt(2)*map_width > applicationWindow.getSize().x) || (chunk_size.height*sqrt(2)*map_height > applicationWindow.getSize().y))
 	{
 		if (chunk_size.width*sqrt(2)*map_width / applicationWindow.getSize().x > chunk_size.height*sqrt(2)*map_height / applicationWindow.getSize().y)
 		{
-			minimap_view.zoom(chunk_size.width*sqrt(2)*map_width/ applicationWindow.getSize().x);
+			minimap_view.zoom(chunk_size.width*sqrt(2)*map_width / applicationWindow.getSize().x);
 		}
-		else if(chunk_size.width*sqrt(2)*map_width / applicationWindow.getSize().x < chunk_size.height*sqrt(2)*map_height / applicationWindow.getSize().y)
+		else if (chunk_size.width*sqrt(2)*map_width / applicationWindow.getSize().x < chunk_size.height*sqrt(2)*map_height / applicationWindow.getSize().y)
 		{
-			minimap_view.zoom(chunk_size.height*sqrt(2)*map_height/ applicationWindow.getSize().y);
+			minimap_view.zoom(chunk_size.height*sqrt(2)*map_height / applicationWindow.getSize().y);
 		}
 	}
 	//Minimap scaling
-	//minimap_view.setCenter(oknoAplikacji.getSize().x , oknoAplikacji.getSize().y);
 	cout << minimap_view.getSize().x << " " << minimap_view.getSize().y << endl;
 
 	//DEPLOYING OBJECTS ON SPECIFIC CHUNKS
 	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	/*umiesc_obiekt(drzewo[0], texture4_size, image, 1000, texture1_size, oknoAplikacji, chunk_view);
-	umiesc_obiekt(drzewo[1], texture4_size, image, 250, texture1_size, oknoAplikacji, chunk_view);
-	umiesc_obiekt(drzewo[2], texture4_size, image, 453, texture1_size, oknoAplikacji, chunk_view);
-	umiesc_obiekt(drzewo[3], texture4_size, image, 841, texture1_size, oknoAplikacji, chunk_view);
-	umiesc_obiekt(drzewo[4], texture4_size, image, 134, texture1_size, oknoAplikacji, chunk_view);
-	umiesc_obiekt(drzewo[5], texture4_size, image, 345, texture1_size, oknoAplikacji, chunk_view);
-	umiesc_obiekt(drzewo[6], texture4_size, image, 612, texture1_size, oknoAplikacji, chunk_view);
-	umiesc_obiekt(drzewo[7], texture4_size, image, 748, texture1_size, oknoAplikacji, chunk_view);
-	umiesc_obiekt(unit1[0], texture5_size, image, 749, texture1_size, oknoAplikacji, chunk_view);*/
-	umiesc_obiekt(unit1[1], texture5_size, chunk, 0, texture1_size, applicationWindow, chunk_view);
+	place_object(unit1[1], texture5_size, chunk, 0, texture1_size, applicationWindow, chunk_view);
 
 	for (int i = 0; i < number_of_trees1; i++) {
-		umiesc_obiekt(drzewo[i], texture_tree1_size, chunk, rand() % (map_height*map_width), texture1_size, applicationWindow, chunk_view);
+		place_object(tree[i], texture_tree1_size, chunk, rand() % (map_height*map_width), texture1_size, applicationWindow, chunk_view);
 	}
 
 	for (int i = 0; i < number_of_bushes1; i++) {
-		umiesc_obiekt(bush1[i], texture_bush1_size, chunk, rand() % (map_height*map_width), texture1_size, applicationWindow, chunk_view);
+		place_object(bush1[i], texture_bush1_size, chunk, rand() % (map_height*map_width), texture1_size, applicationWindow, chunk_view);
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------//
@@ -327,40 +311,40 @@ int main(int argc, char** argv)
 
 		//SUPPORT OF INPUT DEVICES
 		//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-		Event zdarzenie;
-		while (applicationWindow.pollEvent(zdarzenie))
+		Event event;
+		while (applicationWindow.pollEvent(event))
 		{
-			switch (zdarzenie.type)
+			switch (event.type)
 			{
 			case Event::Closed:
 				quit = true;
 				break;
 			case Event::KeyPressed:
 
-				switch (zdarzenie.key.code)
+				switch (event.key.code)
 				{
 				case Keyboard::Escape:
-				quit = true;
-				break;
+					quit = true;
+					break;
 				case Keyboard::Numpad8:
 					if (game_zoom < 0.5f)
 					{
 						game_zoom += 0.1f;
 						//We're changing view size to desired one, adding we add a multiple of the resolution ratio (height * 2 because the height render would be 2 times greater for chunks)
-						chunk_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height * 2) + (9 * zoom_step*2)*game_zoom);
+						chunk_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height * 2) + (9 * zoom_step * 2)*game_zoom);
 						object_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height)+(9 * zoom_step)*game_zoom);
 					}
-				break;
+					break;
 				case Keyboard::Numpad2:
 					if (game_zoom > -0.5f)
 					{
 						game_zoom -= 0.1f;
-						chunk_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height * 2) + (9 * zoom_step*2)*game_zoom);
-						object_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height) + (9 * zoom_step)*game_zoom);
+						chunk_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height * 2) + (9 * zoom_step * 2)*game_zoom);
+						object_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height)+(9 * zoom_step)*game_zoom);
 					}
-				break;
+					break;
 				default:
-				break;
+					break;
 				}
 				break;
 
@@ -373,30 +357,27 @@ int main(int argc, char** argv)
 				//CAMERA ZOOM
 				//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 			case Event::MouseWheelScrolled:
-					if (zdarzenie.mouseWheelScroll.delta <= -1)
+				if (event.mouseWheelScroll.delta <= -1)
+				{
+					if (game_zoom < 0.5f)//Dezooming
 					{
-						if (game_zoom < 0.5f)//Dezooming
-						{
-							game_zoom += 0.1f;
-							chunk_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height * 2) + (9 * zoom_step * 2)*game_zoom);
-							object_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height)+(9 * zoom_step)*game_zoom);
-						}
+						game_zoom += 0.1f;
+						chunk_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height * 2) + (9 * zoom_step * 2)*game_zoom);
+						object_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height)+(9 * zoom_step)*game_zoom);
 					}
-					if (zdarzenie.mouseWheelScroll.delta >= 1)
+				}
+				if (event.mouseWheelScroll.delta >= 1)
+				{
+					if (game_zoom > -1.5f)//Zooming
 					{
-						if (game_zoom > -1.5f)//Zooming
-						{
-							game_zoom -= 0.1f;
-							chunk_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height * 2) + (9 * zoom_step * 2)*game_zoom);
-							object_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height)+(9 * zoom_step)*game_zoom);
-						}
+						game_zoom -= 0.1f;
+						chunk_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height * 2) + (9 * zoom_step * 2)*game_zoom);
+						object_view.setSize(resolution_width + (16 * zoom_step)*game_zoom, (resolution_height)+(9 * zoom_step)*game_zoom);
 					}
-					//cout << "wheel movement: " << zdarzenie.mouseWheelScroll.delta << endl;
-					//cout << "mouse x: " << zdarzenie.mouseWheelScroll.x << endl;
-					//cout << "mouse y: " << zdarzenie.mouseWheelScroll.y << endl;
+				}
 				break;
 			}
-			
+
 			//MOVING CAMERA
 			//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 			if (mouse_position.x == 0)
@@ -407,17 +388,17 @@ int main(int argc, char** argv)
 			if (mouse_position.y == 0)
 			{
 				chunk_view.move(speed_of_scrolling, -speed_of_scrolling);//Camera move up
-				object_view.move(0, -object_scroll/2);//In Y axis we have to use half of the value, because render was twice as big
+				object_view.move(0, -object_scroll / 2);//In Y axis we have to use half of the value, because render was twice as big
 			}
-			if (mouse_position.x == applicationWindow.getSize().x-1)
+			if (mouse_position.x == applicationWindow.getSize().x - 1)
 			{
 				chunk_view.move(speed_of_scrolling, speed_of_scrolling);//Camera move right
 				object_view.move(object_scroll, 0);
 			}
-			if (mouse_position.y == applicationWindow.getSize().y-1)
+			if (mouse_position.y == applicationWindow.getSize().y - 1)
 			{
 				chunk_view.move(-speed_of_scrolling, speed_of_scrolling);//Camera move down
-				object_view.move(0, object_scroll/2);
+				object_view.move(0, object_scroll / 2);
 			}
 			//For objects I'm using object_scroll (sqrt(2)*speed_of_scrolling), because it is after tranformation
 		}
@@ -430,11 +411,10 @@ int main(int argc, char** argv)
 		{
 			applicationWindow.draw(chunk[i]);//Displays chunks
 		}
-		//oknoAplikacji.setView(oknoAplikacji.getDefaultView());//Is to project objects straight
 		applicationWindow.setView(object_view);
 		for (int i = 0; i < number_of_trees1; i++)
 		{
-			applicationWindow.draw(drzewo[i]);
+			applicationWindow.draw(tree[i]);
 		}
 
 		for (int i = 0; i < number_of_bushes1; i++)
@@ -459,7 +439,7 @@ int main(int argc, char** argv)
 	}
 	//---------------------------------------------------------------------------------------------------------------------//
 	delete[] chunk;
-	delete[] drzewo;
+	delete[] tree;
 	delete[] unit1;
 	applicationWindow.close();
 

@@ -125,11 +125,13 @@
   <ItemGroup>
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MapDecorator.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="unit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Chunk.h" />
+    <ClInclude Include="MapDecorator.h" />
     <ClInclude Include="network_opcodes.hpp" />
     <ClInclude Include="player.hpp" />
     <ClInclude Include="unit.hpp" />
